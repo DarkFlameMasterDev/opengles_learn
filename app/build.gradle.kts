@@ -20,15 +20,21 @@ android {
                 cppFlags += "-std=c++11"
             }
         }
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86", "x86_64")
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    }
+    debug {
+      isDebuggable = true
+      isJniDebuggable = true
+      isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -44,15 +50,17 @@ android {
             version = "3.22.1"
         }
     }
+    ndkVersion = "21.1.6352462"
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-
+  implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
+    // 千万不要升这个萨比玩意（SB ！！！）
     implementation("com.google.android.material:material:1.8.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     testImplementation("junit:junit:4.13.2")
