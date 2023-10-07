@@ -1,14 +1,19 @@
+# MacOS
+.DS_Store
 # Gradle files
 .gradle/
 build/
+/build
 
 # Local configuration file (sdk path, etc)
 local.properties
+/local.properties
 
 # Log/OS Files
 *.log
 
 # Android Studio generated files and folders
+/captures
 captures/
 .externalNativeBuild/
 .cxx/
@@ -18,6 +23,7 @@ output.json
 # IntelliJ
 *.iml
 .idea/
+.idea/*
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
