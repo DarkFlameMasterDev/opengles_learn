@@ -6,11 +6,13 @@ import android.util.AttributeSet
 
 class MyGLSurfaceView(context: Context, attrs: AttributeSet?) : GLSurfaceView(context, attrs) {
 
-  var renderer: MyGLSurfaceRenderer? = null
-    set(r) {
-      field = r
-      setRenderer(r)
-      renderMode = r?.rendererMode ?: -1
+  var mRenderer: MyGLSurfaceRenderer? = null
+    set(value) {
+      field = value
+      if (value !== null) {
+        setRenderer(value)
+        renderMode = value.rendererMode
+      }
     }
 
   init {

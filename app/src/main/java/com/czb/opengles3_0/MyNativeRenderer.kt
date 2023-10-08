@@ -3,7 +3,7 @@ package com.czb.opengles3_0
 class MyNativeRenderer {
   companion object {
     init {
-      System.loadLibrary("opengles3_0")
+      System.loadLibrary("cpp_libs")
     }
 
   }

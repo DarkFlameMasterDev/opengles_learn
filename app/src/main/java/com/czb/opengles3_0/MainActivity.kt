@@ -11,7 +11,6 @@ class MainActivity : AppCompatActivity() {
 
   private lateinit var binding: ActivityMainBinding
 
-  private lateinit var glSurfaceView: MyGLSurfaceView
   private val glSurfaceRenderer = MyGLSurfaceRenderer()
 
   private val permissions = arrayOf(
@@ -25,26 +24,7 @@ class MainActivity : AppCompatActivity() {
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
-    for (per in permissions) {
-      if (ActivityCompat.checkSelfPermission(this, per) != PackageManager.PERMISSION_GRANTED) {
-        requestPermissions(permissions, 100)
-        return
-      }
-    }
-    glSurfaceView.renderer = glSurfaceRenderer
-  }
-
-  override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<String?>,
-    grantResults: IntArray
-  ) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    if (requestCode == 100) {
-      if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-        glSurfaceView.renderer = glSurfaceRenderer
-      }
-    }
+    binding.glSurface.mRenderer = glSurfaceRenderer
   }
 
   override fun onDestroy() {

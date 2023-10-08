@@ -4,6 +4,7 @@
 #include <jni.h>
 #include <string>
 #include "android_log.h"
+#include "MyGLRenderContext.h"
 
 #define NATIVE_RENDER_CLASS_NAME "com/czb/opengles3_0/MyNativeRenderer"
 
@@ -12,19 +13,19 @@ extern "C" {
 #endif
 
 void nativeOnSurfaceCreated(JNIEnv *env, jobject thiz) {
-  // TODO: implement native_OnSurfaceCreated()
+  MyGLRenderContext::getInstance()->onSurfaceCreated();
 }
 
 void nativeOnSurfaceChanged(JNIEnv *env, jobject thiz, jint width, jint height) {
-
+  MyGLRenderContext::getInstance()->onSurfaceChanged(width, height);
 }
 
 void nativeOnDrawFrame(JNIEnv *env, jobject thiz) {
-
+  MyGLRenderContext::getInstance()->onDrawFrame();
 }
 
 void nativeDestroy(JNIEnv *env, jobject thiz) {
-
+  MyGLRenderContext::getInstance()->destroy();
 }
 
 #ifdef __cplusplus
