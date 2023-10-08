@@ -1,69 +1,70 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+  id("com.android.application")
+  id("org.jetbrains.kotlin.android")
 }
 
 android {
-    namespace = "com.czb.opengles3_0"
-    compileSdk = 33
+  namespace = "com.czb.opengles3_0"
+  compileSdk = 33
 
-    defaultConfig {
-        applicationId = "com.czb.opengles3_0"
-        minSdk = 24
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+  defaultConfig {
+    applicationId = "com.czb.opengles3_0"
+    minSdk = 24
+    targetSdk = 33
+    versionCode = 1
+    versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags += "-std=c++11"
-            }
-        }
-        ndk {
-            abiFilters += listOf("arm64-v8a", "x86", "x86_64")
-        }
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    externalNativeBuild {
+      cmake {
+        cppFlags += "-std=c++11"
+      }
     }
+    ndk {
+      abiFilters += "arm64-v8a"
+    }
+  }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+  buildTypes {
+    release {
+      isMinifyEnabled = false
+      proguardFiles(
+        getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+      )
     }
     debug {
       isDebuggable = true
       isJniDebuggable = true
       isMinifyEnabled = false
-        }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+  }
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+  }
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
+  externalNativeBuild {
+    cmake {
+      path = file("src/main/cpp/CMakeLists.txt")
+      version = "3.22.1"
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
-    ndkVersion = "21.1.6352462"
-    buildFeatures {
-        viewBinding = true
-    }
+  }
+  ndkVersion = "21.1.6352462"
+  buildFeatures {
+    viewBinding = true
+  }
 }
 
 dependencies {
   implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    // 千万不要升这个萨比玩意（SB ！！！）
-    implementation("com.google.android.material:material:1.8.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+  implementation("androidx.core:core-ktx:1.9.0")
+  implementation("androidx.appcompat:appcompat:1.6.1")
+  // 千万不要升这个萨比玩意（SB ！！！）
+  implementation("com.google.android.material:material:1.8.0")
+  implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+  testImplementation("junit:junit:4.13.2")
+  androidTestImplementation("androidx.test.ext:junit:1.1.5")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

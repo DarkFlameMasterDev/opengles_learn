@@ -1,34 +1,54 @@
 package com.czb.opengles3_0
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.czb.opengles3_0.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+  private lateinit var binding: ActivityMainBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+  private lateinit var glSurfaceView: MyGLSurfaceView
+  private val glSurfaceRenderer = MyGLSurfaceRenderer()
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+  private val permissions = arrayOf(
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.READ_EXTERNAL_STORAGE"
+  )
 
-        // Example of a call to a native method
-        binding.sampleText.text = stringFromJNI()
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+
+    for (per in permissions) {
+      if (ActivityCompat.checkSelfPermission(this, per) != PackageManager.PERMISSION_GRANTED) {
+        requestPermissions(permissions, 100)
+        return
+      }
     }
+    glSurfaceView.renderer = glSurfaceRenderer
+  }
 
-    /**
-     * A native method that is implemented by the 'opengles3_0' native library,
-     * which is packaged with this application.
-     */
-    external fun stringFromJNI(): String
-
-    companion object {
-        // Used to load the 'opengles3_0' library on application startup.
-        init {
-            System.loadLibrary("opengles3_0")
-        }
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<String?>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    if (requestCode == 100) {
+      if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        glSurfaceView.renderer = glSurfaceRenderer
+      }
     }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    glSurfaceRenderer.destroy()
+  }
 }
