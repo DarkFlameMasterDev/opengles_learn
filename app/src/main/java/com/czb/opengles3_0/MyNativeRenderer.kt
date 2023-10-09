@@ -5,7 +5,6 @@ class MyNativeRenderer {
     init {
       System.loadLibrary("cpp_libs")
     }
-
   }
 
   external fun nativeOnSurfaceCreated()

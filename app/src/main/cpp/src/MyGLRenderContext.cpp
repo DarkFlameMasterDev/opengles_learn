@@ -33,28 +33,32 @@ void MyGLRenderContext::beforeDraw() {
   }
 
   //1.创建着色器程序，此处将着色器程序创建封装到一个工具类中
-  char vShaderStr[] =
+  const char vShaderStr[] =
       "#version 300 es\n"
       "layout(location = 0) in vec3 aPos;\n"
+      "layout(location = 1) in vec3 aColor;\n"
+      "out vec3 ourColor;\n"
       "void main(){\n"
       "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+      "   ourColor = aColor;\n"
       "}\n";
 
-  char fShaderStr[] =
+  const char fShaderStr[] =
       "#version 300 es\n"
       "precision mediump float;\n"
       "out vec4 FragColor;\n"
+      "in vec3 ourColor;\n"
       "void main(){\n"
-      "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+      "   FragColor = vec4(ourColor, 1.0f);\n"
       "}\n";
 
   program = GLUtils::CreateProgram(vShaderStr, fShaderStr);
 
   //2.生成VAO,VBO对象,并绑定顶点属性
   GLfloat vertices[] = {
-      -0.5f, -0.5f, 0.0f,
-      0.5f, -0.5f, 0.0f,
-      0.0f, 0.5f, 0.0f
+      -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+      0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+      0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
   };
 
   glGenVertexArrays(1, &VAO);
@@ -65,12 +69,15 @@ void MyGLRenderContext::beforeDraw() {
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   //顶点坐标属性
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) nullptr);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) nullptr);
   glEnableVertexAttribArray(0);
+
+  //颜色
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   glBindVertexArray(GL_NONE);
   glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
- glBindVertexArray(GL_NONE);
 }
 
 
