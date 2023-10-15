@@ -3,7 +3,7 @@
 //
 #include <jni.h>
 #include <string>
-#include "android_log.h"
+#include "log_utils.h"
 #include "MyGLRenderContext.h"
 
 #define NATIVE_RENDER_CLASS_NAME "com/czb/opengles3_0/MyNativeRenderer"

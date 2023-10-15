@@ -1,17 +1,17 @@
 //
-// Created by 曹璐韬 on 2023/10/8.
+// Created by 曹璐韬 on 2023/10/15.
 //
 
-#include "SampleTriangle.h"
+#include "SampleSquare.h"
 #include "GLUtils.h"
 
-SampleTriangle::SampleTriangle() {}
+SampleSquare::SampleSquare() {}
 
-SampleTriangle::~SampleTriangle() {
+SampleSquare::~SampleSquare() {
 
 }
 
-void SampleTriangle::beforeDraw(int screenW, int screenH) {
+void SampleSquare::beforeDraw(int screenW, int screenH) {
   if (program != 0) {
     return;
   }
@@ -41,8 +41,8 @@ void SampleTriangle::beforeDraw(int screenW, int screenH) {
   //2.生成VAO,VBO对象,并绑定顶点属性
   GLfloat vertices[] = {
       -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-      0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-      0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+      0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+      0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f
   };
 
   glGenVertexArrays(1, &VAO);
@@ -65,7 +65,7 @@ void SampleTriangle::beforeDraw(int screenW, int screenH) {
 
 }
 
-void SampleTriangle::draw() {
+void SampleSquare::draw() {
   if (program == 0) {
     return;
   }
@@ -84,11 +84,9 @@ void SampleTriangle::draw() {
   glUseProgram(GL_NONE);
 }
 
-void SampleTriangle::destroy() {
+void SampleSquare::destroy() {
   if (program) {
     program = GL_NONE;
   }
   glDeleteVertexArrays(1, &VAO);
 }
-
-

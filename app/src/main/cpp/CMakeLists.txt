@@ -11,6 +11,8 @@ file(GLOB src_files
     ${CMAKE_SOURCE_DIR}/src/*.cpp
     ${CMAKE_SOURCE_DIR}/src/sample/*.cpp)
 
+message("${src_files}")
+
 add_library(cpp_libs SHARED
     ${src_files})
 

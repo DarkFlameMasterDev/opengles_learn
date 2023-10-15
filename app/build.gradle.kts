@@ -21,7 +21,7 @@ android {
       }
     }
     ndk {
-      abiFilters += "arm64-v8a"
+      abiFilters += listOf("arm64-v8a", "x86", "x86_64")
     }
   }
 
@@ -51,7 +51,7 @@ android {
       version = "3.22.1"
     }
   }
-  ndkVersion = "21.1.6352462"
+//  ndkVersion = "21.1.6352462"
   buildFeatures {
     viewBinding = true
   }

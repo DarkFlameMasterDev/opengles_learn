@@ -18,6 +18,8 @@ class GLUtils {
 public:
     static GLuint LoadShader(GLenum shaderType, const char *sourceCode);
 
+    static bool checkShader(GLenum shaderType, GLuint shader);
+
     static GLuint CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource,
                                 GLuint &vertexShaderHandle,
                                 GLuint &fragShaderHandle);
@@ -31,6 +33,8 @@ public:
         GLuint &fragShaderHandle,
         const GLchar **varying,
         int varyingCount);
+
+    static bool checkProgram(GLuint &vertexShaderHandle, GLuint &fragShaderHandle, GLuint program);
 
     static void DeleteProgram(GLuint &program);
 

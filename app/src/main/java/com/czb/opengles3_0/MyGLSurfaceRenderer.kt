@@ -4,6 +4,11 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
+/**
+ * 用于渲染 GLSurfaceView
+ * @property rendererMode Int
+ * @property nativeRenderer MyNativeRenderer
+ */
 class MyGLSurfaceRenderer : GLSurfaceView.Renderer {
 
   val rendererMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY

@@ -2,8 +2,8 @@
 // Created by 曹璐韬 on 2023/10/8.
 //
 
-#ifndef OPENGLES3_0_ANDROID_LOG_H
-#define OPENGLES3_0_ANDROID_LOG_H
+#ifndef OPENGLES3_0_LOG_UTILS_H
+#define OPENGLES3_0_LOG_UTILS_H
 
 #include "android/log.h"
 #include "sys/time.h"
@@ -42,4 +42,4 @@ static long long GetSysCurrentTime() {
 #define GO_CHECK_GL_ERROR(...) \
 LOGE("CHECK_GL_ERROR %s glGetError = %d, line = %d, ",  __FUNCTION__, glGetError(), __LINE__)
 
-#endif //OPENGLES3_0_ANDROID_LOG_H
+#endif //OPENGLES3_0_LOG_UTILS_H

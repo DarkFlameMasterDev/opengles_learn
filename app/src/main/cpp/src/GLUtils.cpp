@@ -3,47 +3,64 @@
 //
 
 #include "GLUtils.h"
-#include "android_log.h"
+#include "log_utils.h"
 #include <cstdlib>
 #include <cstring>
 #include <GLES2/gl2ext.h>
 
-char *getShaderTypeName(int ID) {
-  if (ID == 0x8B30) {
-    return "fragment_shader";
-  } else if (ID == 0x8B31) {
-    return "vertex_shader";
-  } else {
-    return "ERROR";
+std::string getShaderTypeName(int ID) {
+  switch (ID) {
+    case 0x8B30:
+      return "fragment_shader";
+    case 0x8B31:
+      return "vertex_shader";
+    default:
+      return "shader_type_ERROR";
   }
 }
 
+/**
+ * 加载 Shader
+ * @param shaderType
+ * @param sourceCode
+ * @return
+ */
 GLuint GLUtils::LoadShader(GLenum shaderType, const char *sourceCode) {
-  GLuint shader = 0;
+  GLuint shader;
   FUN_BEGIN_TIME("GLUtils::LoadShader")
     shader = glCreateShader(shaderType);
     if (shader) {
       glShaderSource(shader, 1, &sourceCode, nullptr);
       glCompileShader(shader);
-      GLint compiled = 0;
-      glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-      if (!compiled) {
-        GLint infoLen = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-        if (infoLen) {
-          char *buf = (char *) malloc((size_t) infoLen);
-          if (buf) {
-            glGetShaderInfoLog(shader, infoLen, nullptr, buf);
-            LOGE("GLUtils::LoadShader Could not compile shader %s:\n%s\n", getShaderTypeName(shaderType), buf);
-            free(buf);
-          }
-          glDeleteShader(shader);
-          shader = 0;
-        }
+      if (!checkShader(shaderType, shader)) {
+        shader = 0;
       }
     }
   FUN_END_TIME("GLUtils::LoadShader")
   return shader;
+}
+
+bool GLUtils::checkShader(GLenum shaderType, GLuint shader) {
+  GLint compiled = 0;
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+  // 编译成功直接返回
+  if (compiled) {
+    return true;
+  }
+  // 编译失败，获取并打印 log
+  GLint infoLen = 0;
+  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+  if (infoLen) {
+    char *buf = (char *) malloc((size_t) infoLen);
+    if (buf) {
+      glGetShaderInfoLog(shader, infoLen, nullptr, buf);
+      LOGE("GLUtils::LoadShader Could not compile shader %s:\n%s\n",
+           getShaderTypeName(shaderType).c_str(), buf);
+      free(buf);
+    }
+    glDeleteShader(shader);
+  }
+  return false;
 }
 
 GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource,
@@ -62,33 +79,42 @@ GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFrag
       glAttachShader(program, fragShaderHandle);
       CheckGLError("glAttachShader");
       glLinkProgram(program);
-      GLint linkStatus = GL_FALSE;
-      glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-
-      glDetachShader(program, vertexShaderHandle);
-      glDeleteShader(vertexShaderHandle);
-      vertexShaderHandle = 0;
-      glDetachShader(program, fragShaderHandle);
-      glDeleteShader(fragShaderHandle);
-      fragShaderHandle = 0;
-      if (linkStatus != GL_TRUE) {
-        GLint bufLength = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
-        if (bufLength) {
-          char *buf = (char *) malloc((size_t) bufLength);
-          if (buf) {
-            glGetProgramInfoLog(program, bufLength, nullptr, buf);
-//          LOGE("GLUtils::CreateProgram Could not link program:\n%s\n", buf);
-            free(buf);
-          }
-        }
-        glDeleteProgram(program);
+      if (!checkProgram(vertexShaderHandle, fragShaderHandle, program)) {
         program = 0;
       }
     }
   FUN_END_TIME("GLUtils::CreateProgram")
   LOGE("GLUtils::CreateProgram program = %d", program);
   return program;
+}
+
+bool GLUtils::checkProgram(GLuint &vertexShaderHandle, GLuint &fragShaderHandle, GLuint program) {
+  GLint linkStatus = GL_FALSE;
+  glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+
+  glDetachShader(program, vertexShaderHandle);
+  glDeleteShader(vertexShaderHandle);
+  vertexShaderHandle = 0;
+  glDetachShader(program, fragShaderHandle);
+  glDeleteShader(fragShaderHandle);
+  fragShaderHandle = 0;
+  // 连接成功直接返回
+  if (linkStatus == GL_TRUE) {
+    return true;
+  }
+  // 连接失败，获取并打印 log
+  GLint bufLength = 0;
+  glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
+  if (bufLength) {
+    char *buf = (char *) malloc((size_t) bufLength);
+    if (buf) {
+      glGetProgramInfoLog(program, bufLength, nullptr, buf);
+      LOGE("GLUtils::CreateProgram Could not link program:\n%s\n", buf);
+      free(buf);
+    }
+  }
+  glDeleteProgram(program);
+  return false;
 }
 
 GLuint
@@ -131,7 +157,7 @@ GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *
           char *buf = (char *) malloc((size_t) bufLength);
           if (buf) {
             glGetProgramInfoLog(program, bufLength, nullptr, buf);
-//          LOGE("GLUtils::CreateProgramWithFeedback Could not link program:\n%s\n", buf);
+            LOGE("GLUtils::CreateProgramWithFeedback Could not link program:\n%s\n", buf);
             free(buf);
           }
         }
