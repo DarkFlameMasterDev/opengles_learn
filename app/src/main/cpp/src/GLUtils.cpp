@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <GLES2/gl2ext.h>
+#include <fstream>
+#include <sstream>
 
 std::string getShaderTypeName(int ID) {
   switch (ID) {
@@ -25,9 +27,9 @@ std::string getShaderTypeName(int ID) {
  * @param sourceCode
  * @return
  */
-GLuint GLUtils::LoadShader(GLenum shaderType, const char *sourceCode) {
+GLuint GLUtils::loadShader(GLenum shaderType, const char *sourceCode) {
   GLuint shader;
-  FUN_BEGIN_TIME("GLUtils::LoadShader")
+  FUN_BEGIN_TIME("GLUtils::loadShader")
     shader = glCreateShader(shaderType);
     if (shader) {
       glShaderSource(shader, 1, &sourceCode, nullptr);
@@ -36,9 +38,34 @@ GLuint GLUtils::LoadShader(GLenum shaderType, const char *sourceCode) {
         shader = 0;
       }
     }
-  FUN_END_TIME("GLUtils::LoadShader")
+  FUN_END_TIME("GLUtils::loadShader")
   return shader;
 }
+
+
+GLvoid GLUtils::loadShaderCode(const std::string &path, const char *code) {
+  // 1. retrieve the shader data from file
+  std::ifstream shaderFile;
+  // ensure ifstream objects can throw exceptions:
+  shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  try {
+    // open files
+    shaderFile.open(path);
+    std::stringstream shaderStream;
+    // read file's buffer contents into streams
+    shaderStream << shaderFile.rdbuf();
+    // close file handlers
+    shaderFile.close();
+
+    // convert stream into string
+    std::string s = shaderStream.str();
+    code = s.c_str();
+
+  } catch (std::ifstream::failure &e) {
+    LOGE("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: %d : %s", e.code().value(), e.what());
+  }
+}
+
 
 bool GLUtils::checkShader(GLenum shaderType, GLuint shader) {
   GLint compiled = 0;
@@ -54,7 +81,7 @@ bool GLUtils::checkShader(GLenum shaderType, GLuint shader) {
     char *buf = (char *) malloc((size_t) infoLen);
     if (buf) {
       glGetShaderInfoLog(shader, infoLen, nullptr, buf);
-      LOGE("GLUtils::LoadShader Could not compile shader %s:\n%s\n",
+      LOGE("GLUtils::loadShader Could not compile shader %s:\n%s\n",
            getShaderTypeName(shaderType).c_str(), buf);
       free(buf);
     }
@@ -67,9 +94,9 @@ GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFrag
                               GLuint &vertexShaderHandle, GLuint &fragShaderHandle) {
   GLuint program = 0;
   FUN_BEGIN_TIME("GLUtils::CreateProgram")
-    vertexShaderHandle = LoadShader(GL_VERTEX_SHADER, pVertexShaderSource);
+    vertexShaderHandle = loadShader(GL_VERTEX_SHADER, pVertexShaderSource);
     if (!vertexShaderHandle) return program;
-    fragShaderHandle = LoadShader(GL_FRAGMENT_SHADER, pFragShaderSource);
+    fragShaderHandle = loadShader(GL_FRAGMENT_SHADER, pFragShaderSource);
     if (!fragShaderHandle) return program;
 
     program = glCreateProgram();
@@ -123,10 +150,10 @@ GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *
                                    GLchar const **varying, int varyingCount) {
   GLuint program = 0;
   FUN_BEGIN_TIME("GLUtils::CreateProgramWithFeedback")
-    vertexShaderHandle = LoadShader(GL_VERTEX_SHADER, pVertexShaderSource);
+    vertexShaderHandle = loadShader(GL_VERTEX_SHADER, pVertexShaderSource);
     if (!vertexShaderHandle) return program;
 
-    fragShaderHandle = LoadShader(GL_FRAGMENT_SHADER, pFragShaderSource);
+    fragShaderHandle = loadShader(GL_FRAGMENT_SHADER, pFragShaderSource);
     if (!fragShaderHandle) return program;
 
     program = glCreateProgram();

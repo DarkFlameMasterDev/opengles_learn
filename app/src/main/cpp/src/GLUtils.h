@@ -16,7 +16,9 @@
 
 class GLUtils {
 public:
-    static GLuint LoadShader(GLenum shaderType, const char *sourceCode);
+    static GLuint loadShader(GLenum shaderType, const char *sourceCode);
+
+    static GLvoid loadShaderCode(const std::string &path, const char *code);
 
     static bool checkShader(GLenum shaderType, GLuint shader);
 

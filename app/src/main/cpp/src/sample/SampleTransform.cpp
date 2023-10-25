@@ -1,17 +1,21 @@
 //
-// Created by 曹璐韬 on 2023/10/15.
+// Created by 曹璐韬 on 2023/10/20.
 //
 
-#include "SampleSquare.h"
+#include "SampleTransform.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "GLUtils.h"
 
-SampleSquare::SampleSquare() {}
 
-SampleSquare::~SampleSquare() {
+SampleTransform::SampleTransform() {}
+
+SampleTransform::~SampleTransform() {
 
 }
 
-void SampleSquare::beforeDraw(int screenW, int screenH) {
+void SampleTransform::beforeDraw(int screenW, int screenH) {
   if (program != 0) {
     return;
   }
@@ -40,26 +44,17 @@ void SampleSquare::beforeDraw(int screenW, int screenH) {
 
   //2.生成VAO,VBO对象,并绑定顶点属性
   GLfloat vertices[] = {
-      0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
+      -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
       0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-      -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-      -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f
-  };
-
-  GLuint indices[] = {
-      0, 1, 3,  // first Triangle
-      1, 2, 3   // second Triangle
+      0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
   };
 
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
 
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   //顶点坐标属性
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) nullptr);
@@ -74,7 +69,7 @@ void SampleSquare::beforeDraw(int screenW, int screenH) {
 
 }
 
-void SampleSquare::draw() {
+void SampleTransform::draw() {
   if (program == 0) {
     return;
   }
@@ -86,16 +81,18 @@ void SampleSquare::draw() {
   //绑定VAO
   glBindVertexArray(VAO);
   //开始绘制
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
   //解绑VAO
   glBindVertexArray(GL_NONE);
   //解绑程序着色器对象
   glUseProgram(GL_NONE);
 }
 
-void SampleSquare::destroy() {
+void SampleTransform::destroy() {
   if (program) {
     program = GL_NONE;
   }
   glDeleteVertexArrays(1, &VAO);
 }
+
+
