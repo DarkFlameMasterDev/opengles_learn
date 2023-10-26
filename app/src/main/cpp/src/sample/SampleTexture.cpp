@@ -4,7 +4,6 @@
 
 #include "SampleTexture.h"
 #include "log_utils.h"
-#include "filesystem.h"
 #include <cstdlib>
 
 #define  STB_IMAGE_STATIC
@@ -40,12 +39,6 @@ void SampleTexture::beforeDraw(int screenW, int screenH) {
       1.0f, 1.0f, 0.0f,
       0.0f, 1.0f  // top left
   };
-
-  std::string vertexPath = FileSystem::getPath("src/3_Textures/texture_vs.glsl");
-  LOGE("vertexPath: %s", vertexPath.c_str());
-  std::string fragmentPath = FileSystem::getPath("src/3_Textures/texture_fs.glsl");
-  LOGE("fragmentPath: %s", fragmentPath.c_str());
-
 
 }
 

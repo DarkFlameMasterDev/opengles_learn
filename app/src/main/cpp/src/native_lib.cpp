@@ -3,10 +3,15 @@
 //
 #include <jni.h>
 #include <string>
+#include "globalAssetManager.h"
 #include "log_utils.h"
 #include "MyGLRenderContext.h"
 
 #define NATIVE_RENDER_CLASS_NAME "com/czb/opengles3_0/MyNativeRenderer"
+#define NATIVE_ASSET_UTILS_CLASS_NAME "com/czb/opengles3_0/MyNativeRenderer"
+#define NATIVE_ASSET_UTILS_COMPANION_CLASS_NAME "com/czb/opengles3_0/AssetUtils$Companion"
+
+AAssetManager *globalAssetManager;
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,26 +33,54 @@ void nativeDestroy(JNIEnv *env, jobject thiz) {
   MyGLRenderContext::getInstance()->destroy();
 }
 
+void setNativeAssetManager(JNIEnv *env, jobject thiz, jobject assetManager) {
+  globalAssetManager = AAssetManager_fromJava(env, assetManager);
+  LOGE("setNativeAssetManager globalAssetManager address:%d", globalAssetManager);
+//  AAsset *asset = AAssetManager_open(globalAssetManager, "triangle_vs.glsl",
+//                                     AASSET_MODE_BUFFER);
+//
+//  if (asset != nullptr) {
+//    // 读取文件内容
+//    const void *data = AAsset_getBuffer(asset);
+//
+//    // 将内容写入 Android Logcat
+//    __android_log_print(ANDROID_LOG_ERROR, "YourAppTag", "Asset Content: %s",
+//                        static_cast<const char *>(data));
+//
+//    // 关闭文件
+//    AAsset_close(asset);
+//  } else {
+//    __android_log_print(ANDROID_LOG_ERROR, "YourAppTag", "Asset Content: %s",
+//                        "AAssetManager open failed");
+//  }
+}
+
 #ifdef __cplusplus
 }
 #endif
 
-static JNINativeMethod methods[] = {
+
+static JNINativeMethod renderMethods[] = {
     {"nativeOnSurfaceCreated", "()V",   (void *) nativeOnSurfaceCreated},
     {"nativeOnSurfaceChanged", "(II)V", (void *) nativeOnSurfaceChanged},
     {"nativeOnDrawFrame",      "()V",   (void *) nativeOnDrawFrame},
     {"nativeDestroy",          "()V",   (void *) nativeDestroy}
 };
 
-static int RegisterNatives(JNIEnv *env) {
-  LOGE("RegisterNatives");
-  jclass clazz = env->FindClass(NATIVE_RENDER_CLASS_NAME);
+static JNINativeMethod assetUtilsMethods[] = {
+    {"setNativeAssetManager", "(Landroid/content/res/AssetManager;)V",
+     (void *) setNativeAssetManager}
+};
+
+static int
+RegisterNatives(JNIEnv *env, const char *className, JNINativeMethod methods[], int length) {
+  LOGE("Register %s Natives", className);
+  jclass clazz = env->FindClass(className);
   if (clazz == nullptr) {
-    LOGE("can't find class: %s", NATIVE_RENDER_CLASS_NAME);
+    LOGE("can't find class: %s", className);
     return JNI_ERR;
   }
-  int len = sizeof(methods) / sizeof(methods[0]);
-  return env->RegisterNatives(clazz, methods, len);
+  return env->RegisterNatives(clazz, methods, length);
 }
 
 static void UnregisterNativeMethods(JNIEnv *env, const char *className) {
@@ -60,7 +93,8 @@ static void UnregisterNativeMethods(JNIEnv *env, const char *className) {
   env->UnregisterNatives(clazz);
 }
 
-extern "C" jint JNI_OnLoad(JavaVM *jvm, void *p) {
+extern "C"
+jint JNI_OnLoad(JavaVM *jvm, void *p) {
   LOGE("=== JNI_OnLoad ===");
   // 置空 env
   JNIEnv *env = nullptr;
@@ -69,15 +103,22 @@ extern "C" jint JNI_OnLoad(JavaVM *jvm, void *p) {
     return JNI_ERR;
   }
   // 注册 Native 方法
-  jint result = RegisterNatives(env);
-  LOGE("result: %d", result);
-  if (result != JNI_OK) {
-    return result;
+  jint renderResult =
+      RegisterNatives(env, NATIVE_RENDER_CLASS_NAME, renderMethods,
+                      sizeof(renderMethods) / sizeof(renderMethods[0]));
+  jint assetResult =
+      RegisterNatives(env, NATIVE_ASSET_UTILS_COMPANION_CLASS_NAME, assetUtilsMethods,
+                      sizeof(assetUtilsMethods) / sizeof(assetUtilsMethods[0]));
+  LOGE("renderResult: %d", renderResult);
+  LOGE("assetResult: %d", assetResult);
+  if (renderResult != JNI_OK && assetResult != JNI_OK) {
+    return JNI_OK;
   }
   return JNI_VERSION_1_6;
 }
 
-extern "C" void JNI_OnUnload(JavaVM *jvm, void *p) {
+extern "C"
+void JNI_OnUnload(JavaVM *jvm, void *p) {
   // 置空 env
   JNIEnv *env = nullptr;
   if (jvm->GetEnv((void **) (&env), JNI_VERSION_1_6) != JNI_OK) {
@@ -86,4 +127,5 @@ extern "C" void JNI_OnUnload(JavaVM *jvm, void *p) {
 
   // 注销 Native 方法
   UnregisterNativeMethods(env, NATIVE_RENDER_CLASS_NAME);
+  UnregisterNativeMethods(env, NATIVE_ASSET_UTILS_COMPANION_CLASS_NAME);
 }

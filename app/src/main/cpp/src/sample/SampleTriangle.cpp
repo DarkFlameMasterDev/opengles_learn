@@ -4,6 +4,7 @@
 
 #include "SampleTriangle.h"
 #include "GLUtils.h"
+#include "log_utils.h"
 
 SampleTriangle::SampleTriangle() {}
 
@@ -36,7 +37,15 @@ void SampleTriangle::beforeDraw(int screenW, int screenH) {
       "   FragColor = vec4(ourColor, 1.0f);\n"
       "}\n";
 
-  program = GLUtils::CreateProgram(vShaderStr, fShaderStr);
+
+  const char *vShaderCode = GLUtils::loadShaderCode("aaa/triangle_vs.glsl");
+  LOGE("vShaderCode : %s", vShaderCode);
+  const char *fShaderCode = GLUtils::loadShaderCode("triangle_fs.glsl");
+  LOGE("fShaderCode : %s", fShaderCode);
+
+
+  program = GLUtils::CreateProgram(vShaderCode, fShaderCode);
+//  program = GLUtils::CreateProgram(vShaderStr, fShaderStr);
 
   //2.生成VAO,VBO对象,并绑定顶点属性
   GLfloat vertices[] = {

@@ -8,7 +8,7 @@
 MyGLRenderContext *MyGLRenderContext::context = nullptr;
 
 MyGLRenderContext::MyGLRenderContext() {
-  pCurSample = new SampleSquare();
+  pCurSample = new SampleTriangle();
 }
 
 MyGLRenderContext::~MyGLRenderContext() {

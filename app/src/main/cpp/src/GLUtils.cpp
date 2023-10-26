@@ -9,6 +9,8 @@
 #include <GLES2/gl2ext.h>
 #include <fstream>
 #include <sstream>
+#include <android/asset_manager.h>
+#include "globalAssetManager.h"
 
 std::string getShaderTypeName(int ID) {
   switch (ID) {
@@ -43,27 +45,29 @@ GLuint GLUtils::loadShader(GLenum shaderType, const char *sourceCode) {
 }
 
 
-GLvoid GLUtils::loadShaderCode(const std::string &path, const char *code) {
-  // 1. retrieve the shader data from file
-  std::ifstream shaderFile;
-  // ensure ifstream objects can throw exceptions:
-  shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  try {
-    // open files
-    shaderFile.open(path);
-    std::stringstream shaderStream;
-    // read file's buffer contents into streams
-    shaderStream << shaderFile.rdbuf();
-    // close file handlers
-    shaderFile.close();
-
-    // convert stream into string
-    std::string s = shaderStream.str();
-    code = s.c_str();
-
-  } catch (std::ifstream::failure &e) {
-    LOGE("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: %d : %s", e.code().value(), e.what());
+char *GLUtils::loadShaderCode(const char *filePath) {
+//  LOGE("globalAssetManager address:%d", globalAssetManager);
+  if (globalAssetManager == nullptr) {
+    return nullptr;
   }
+  AAsset *asset = AAssetManager_open(globalAssetManager, filePath, AASSET_MODE_BUFFER);
+
+  if (asset != nullptr) {
+    const void *data = AAsset_getBuffer(asset);
+    off_t length = AAsset_getLength(asset);
+
+    // 动态分配足够大的缓冲区
+    char *code = new char[length + 1];
+    std::memcpy(code, data, length);
+    code[length] = '\0'; // 添加终止符
+
+    // 关闭文件
+    AAsset_close(asset);
+
+    return code;
+  }
+
+  return nullptr; // 或者可以根据需要返回错误值
 }
 
 
