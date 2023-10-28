@@ -45,8 +45,7 @@ GLuint GLUtils::loadShader(GLenum shaderType, const char *sourceCode) {
 }
 
 
-char *GLUtils::loadShaderCode(const char *filePath) {
-//  LOGE("globalAssetManager address:%d", globalAssetManager);
+char *GLUtils::loadTextFileFromAsset(const char *filePath) {
   if (globalAssetManager == nullptr) {
     return nullptr;
   }
@@ -67,7 +66,28 @@ char *GLUtils::loadShaderCode(const char *filePath) {
     return code;
   }
 
-  return nullptr; // 或者可以根据需要返回错误值
+  return nullptr;
+}
+
+unsigned char *GLUtils::loadBinaryFileFromAsset(const char *binaryFilePath) {
+  if (globalAssetManager == nullptr) {
+    return nullptr;
+  }
+  AAsset *asset = AAssetManager_open(globalAssetManager, binaryFilePath, AASSET_MODE_UNKNOWN);
+
+  if (asset == nullptr) {
+    LOGE("AAssetManager open failed : 无法打开");
+    return nullptr;
+  }
+
+  auto *data = (unsigned char *) AAsset_getBuffer(asset);
+  off_t len = AAsset_getLength(asset);
+
+  auto *binaryFile = new unsigned char[len];
+
+  std::memcpy(binaryFile, data, len);
+  AAsset_close(asset);
+  return binaryFile;
 }
 
 
@@ -94,10 +114,10 @@ bool GLUtils::checkShader(GLenum shaderType, GLuint shader) {
   return false;
 }
 
-GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource,
+GLuint GLUtils::createProgram(const char *pVertexShaderSource, const char *pFragShaderSource,
                               GLuint &vertexShaderHandle, GLuint &fragShaderHandle) {
   GLuint program = 0;
-  FUN_BEGIN_TIME("GLUtils::CreateProgram")
+  FUN_BEGIN_TIME("GLUtils::createProgram")
     vertexShaderHandle = loadShader(GL_VERTEX_SHADER, pVertexShaderSource);
     if (!vertexShaderHandle) return program;
     fragShaderHandle = loadShader(GL_FRAGMENT_SHADER, pFragShaderSource);
@@ -106,16 +126,16 @@ GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFrag
     program = glCreateProgram();
     if (program) {
       glAttachShader(program, vertexShaderHandle);
-      CheckGLError("glAttachShader");
+      checkGlError("glAttachShader");
       glAttachShader(program, fragShaderHandle);
-      CheckGLError("glAttachShader");
+      checkGlError("glAttachShader");
       glLinkProgram(program);
       if (!checkProgram(vertexShaderHandle, fragShaderHandle, program)) {
         program = 0;
       }
     }
-  FUN_END_TIME("GLUtils::CreateProgram")
-  LOGE("GLUtils::CreateProgram program = %d", program);
+  FUN_END_TIME("GLUtils::createProgram")
+  LOGE("GLUtils::createProgram program = %d", program);
   return program;
 }
 
@@ -140,7 +160,7 @@ bool GLUtils::checkProgram(GLuint &vertexShaderHandle, GLuint &fragShaderHandle,
     char *buf = (char *) malloc((size_t) bufLength);
     if (buf) {
       glGetProgramInfoLog(program, bufLength, nullptr, buf);
-      LOGE("GLUtils::CreateProgram Could not link program:\n%s\n", buf);
+      LOGE("GLUtils::createProgram Could not link program:\n%s\n", buf);
       free(buf);
     }
   }
@@ -149,11 +169,11 @@ bool GLUtils::checkProgram(GLuint &vertexShaderHandle, GLuint &fragShaderHandle,
 }
 
 GLuint
-GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *pFragShaderSource,
+GLUtils::createProgramWithFeedback(const char *pVertexShaderSource, const char *pFragShaderSource,
                                    GLuint &vertexShaderHandle, GLuint &fragShaderHandle,
                                    GLchar const **varying, int varyingCount) {
   GLuint program = 0;
-  FUN_BEGIN_TIME("GLUtils::CreateProgramWithFeedback")
+  FUN_BEGIN_TIME("GLUtils::createProgramWithFeedback")
     vertexShaderHandle = loadShader(GL_VERTEX_SHADER, pVertexShaderSource);
     if (!vertexShaderHandle) return program;
 
@@ -163,9 +183,9 @@ GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *
     program = glCreateProgram();
     if (program) {
       glAttachShader(program, vertexShaderHandle);
-      CheckGLError("glAttachShader");
+      checkGlError("glAttachShader");
       glAttachShader(program, fragShaderHandle);
-      CheckGLError("glAttachShader");
+      checkGlError("glAttachShader");
 
       //transform feedback
       glTransformFeedbackVaryings(program, varyingCount, varying, GL_INTERLEAVED_ATTRIBS);
@@ -188,7 +208,7 @@ GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *
           char *buf = (char *) malloc((size_t) bufLength);
           if (buf) {
             glGetProgramInfoLog(program, bufLength, nullptr, buf);
-            LOGE("GLUtils::CreateProgramWithFeedback Could not link program:\n%s\n", buf);
+            LOGE("GLUtils::createProgramWithFeedback Could not link program:\n%s\n", buf);
             free(buf);
           }
         }
@@ -196,13 +216,13 @@ GLUtils::CreateProgramWithFeedback(const char *pVertexShaderSource, const char *
         program = 0;
       }
     }
-  FUN_END_TIME("GLUtils::CreateProgramWithFeedback")
-  LOGE("GLUtils::CreateProgramWithFeedback program = %d", program);
+  FUN_END_TIME("GLUtils::createProgramWithFeedback")
+  LOGE("GLUtils::createProgramWithFeedback program = %d", program);
   return program;
 }
 
-void GLUtils::DeleteProgram(GLuint &program) {
-  LOGE("GLUtils::DeleteProgram");
+void GLUtils::deleteProgram(GLuint &program) {
+  LOGE("GLUtils::deleteProgram");
   if (program) {
     glUseProgram(0);
     glDeleteProgram(program);
@@ -210,16 +230,16 @@ void GLUtils::DeleteProgram(GLuint &program) {
   }
 }
 
-void GLUtils::CheckGLError(const char *pGLOperation) {
+void GLUtils::checkGlError(const char *pGLOperation) {
   for (GLint error = glGetError(); error; error = glGetError()) {
-    LOGE("GLUtils::CheckGLError GL Operation %s() glError (0x%x)\n", pGLOperation, error);
+    LOGE("GLUtils::checkGlError GL Operation %s() glError (0x%x)\n", pGLOperation, error);
   }
 
 }
 
-GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource) {
+GLuint GLUtils::createProgram(const char *pVertexShaderSource, const char *pFragShaderSource) {
   GLuint vertexShaderHandle, fragShaderHandle;
-  return CreateProgram(pVertexShaderSource, pFragShaderSource, vertexShaderHandle,
+  return createProgram(pVertexShaderSource, pFragShaderSource, vertexShaderHandle,
                        fragShaderHandle);
 }
 

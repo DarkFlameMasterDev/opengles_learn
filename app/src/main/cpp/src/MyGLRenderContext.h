@@ -2,7 +2,7 @@
 #define OPENGLES3_0_MYGLRENDERCONTEXT_H
 
 
-#include "GLES3/gl3.h"
+#include "GLES3/gl32.h"
 #include "sample/SampleBase.h"
 
 class MyGLRenderContext {

@@ -6,7 +6,7 @@
 #define OPENGLES3_0_SAMPLEBASE_H
 
 #include "stdint.h"
-#include <GLES3/gl3.h>
+#include <GLES3/gl32.h>
 
 class SampleBase {
 public:

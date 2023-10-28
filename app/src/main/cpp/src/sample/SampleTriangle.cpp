@@ -17,35 +17,14 @@ void SampleTriangle::beforeDraw(int screenW, int screenH) {
     return;
   }
 
-  //1.创建着色器程序，此处将着色器程序创建封装到一个工具类中
-  const char vShaderStr[] =
-      "#version 300 es\n"
-      "layout(location = 0) in vec3 aPos;\n"
-      "layout(location = 1) in vec3 aColor;\n"
-      "out vec3 ourColor;\n"
-      "void main(){\n"
-      "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-      "   ourColor = aColor;\n"
-      "}\n";
-
-  const char fShaderStr[] =
-      "#version 300 es\n"
-      "precision mediump float;\n"
-      "out vec4 FragColor;\n"
-      "in vec3 ourColor;\n"
-      "void main(){\n"
-      "   FragColor = vec4(ourColor, 1.0f);\n"
-      "}\n";
-
-
-  const char *vShaderCode = GLUtils::loadShaderCode("aaa/triangle_vs.glsl");
+  const char *vShaderCode = GLUtils::loadTextFileFromAsset("shader/triangle_vs.glsl");
   LOGE("vShaderCode : %s", vShaderCode);
-  const char *fShaderCode = GLUtils::loadShaderCode("triangle_fs.glsl");
+  const char *fShaderCode = GLUtils::loadTextFileFromAsset("shader/triangle_fs.glsl");
   LOGE("fShaderCode : %s", fShaderCode);
 
 
-  program = GLUtils::CreateProgram(vShaderCode, fShaderCode);
-//  program = GLUtils::CreateProgram(vShaderStr, fShaderStr);
+  program = GLUtils::createProgram(vShaderCode, fShaderCode);
+//  program = GLUtils::createProgram(vShaderStr, fShaderStr);
 
   //2.生成VAO,VBO对象,并绑定顶点属性
   GLfloat vertices[] = {

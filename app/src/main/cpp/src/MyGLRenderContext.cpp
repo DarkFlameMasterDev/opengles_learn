@@ -3,12 +3,13 @@
 #include "GLUtils.h"
 #include "sample/SampleTriangle.h"
 #include "sample/SampleSquare.h"
+#include "sample/SampleTexture.h"
 
 
 MyGLRenderContext *MyGLRenderContext::context = nullptr;
 
 MyGLRenderContext::MyGLRenderContext() {
-  pCurSample = new SampleTriangle();
+  pCurSample = new (SampleTexture);
 }
 
 MyGLRenderContext::~MyGLRenderContext() {

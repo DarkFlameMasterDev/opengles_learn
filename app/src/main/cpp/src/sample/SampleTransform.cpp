@@ -40,7 +40,7 @@ void SampleTransform::beforeDraw(int screenW, int screenH) {
       "   FragColor = vec4(ourColor, 1.0f);\n"
       "}\n";
 
-  program = GLUtils::CreateProgram(vShaderStr, fShaderStr);
+  program = GLUtils::createProgram(vShaderStr, fShaderStr);
 
   //2.生成VAO,VBO对象,并绑定顶点属性
   GLfloat vertices[] = {

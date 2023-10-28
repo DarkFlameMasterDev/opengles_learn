@@ -6,7 +6,7 @@
 #define OPENGLES3_0_GLUTILS_H
 
 
-#include "GLES3/gl3.h"
+#include "GLES3/gl32.h"
 #include "string"
 #include "glm/glm.hpp"
 
@@ -18,17 +18,19 @@ class GLUtils {
 public:
     static GLuint loadShader(GLenum shaderType, const char *sourceCode);
 
-    static char *loadShaderCode(const char *filePath);
+    static char *loadTextFileFromAsset(const char *filePath);
+
+    static unsigned char * loadBinaryFileFromAsset(const char *binaryFilePath);
 
     static bool checkShader(GLenum shaderType, GLuint shader);
 
-    static GLuint CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource,
+    static GLuint createProgram(const char *pVertexShaderSource, const char *pFragShaderSource,
                                 GLuint &vertexShaderHandle,
                                 GLuint &fragShaderHandle);
 
-    static GLuint CreateProgram(const char *pVertexShaderSource, const char *pFragShaderSource);
+    static GLuint createProgram(const char *pVertexShaderSource, const char *pFragShaderSource);
 
-    static GLuint CreateProgramWithFeedback(
+    static GLuint createProgramWithFeedback(
         const char *pVertexShaderSource,
         const char *pFragShaderSource,
         GLuint &vertexShaderHandle,
@@ -38,9 +40,9 @@ public:
 
     static bool checkProgram(GLuint &vertexShaderHandle, GLuint &fragShaderHandle, GLuint program);
 
-    static void DeleteProgram(GLuint &program);
+    static void deleteProgram(GLuint &program);
 
-    static void CheckGLError(const char *pGLOperation);
+    static void checkGlError(const char *pGLOperation);
 
     static void setBool(GLuint programId, const std::string &name, bool value) {
       glUniform1i(glGetUniformLocation(programId, name.c_str()), (int) value);

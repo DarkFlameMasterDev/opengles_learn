@@ -35,7 +35,6 @@ void nativeDestroy(JNIEnv *env, jobject thiz) {
 
 void setNativeAssetManager(JNIEnv *env, jobject thiz, jobject assetManager) {
   globalAssetManager = AAssetManager_fromJava(env, assetManager);
-  LOGE("setNativeAssetManager globalAssetManager address:%d", globalAssetManager);
 //  AAsset *asset = AAssetManager_open(globalAssetManager, "triangle_vs.glsl",
 //                                     AASSET_MODE_BUFFER);
 //
