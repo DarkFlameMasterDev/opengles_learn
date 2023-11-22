@@ -1,2 +1,2 @@
-# opengles_learn
-opengles learn
+# opengles_with_jni_learn
+opengles_with_jni_learn
